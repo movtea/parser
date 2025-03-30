@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 import sqlite3 as sql
 import requests
 
+import pandas as ps
+import streamlit as sl
+
 def create_db():
     data_base = sql.connect('data_html_parser.db')
     with data_base:
@@ -70,6 +73,10 @@ def parser(link, age):
     return [query_name, query_age, query_duration, query_city, query_desc, query_link]
 
 if __name__ == '__main__':
+    sl.title("Парсер группы ...")
+    sl.write("Программа для сбора и записи данных с предложенного сайта! "
+    "Ниже будет представлена таблица данных, записанная из файла базы данных по пути ./data_html_parser.db")
+
     anime = 'https://anime-conventions.ru/catalogue/'
     n_ages = 5
     ages = []
@@ -81,4 +88,12 @@ if __name__ == '__main__':
         link_age = collect_link(anime, age)
         for link in link_age:
             write_in_db(parser(str(link), age), data_base)
+    
     print("Поиск окончен")
+    sl.write(ps.read_sql("SELECT name as 'Название мероприятия', "
+                                "age as 'Год проведения', "
+                                "duration as 'Продолжительность', "
+                                "city as 'Город проведения', "
+                                "desc as 'Описание', "
+                                "link as 'Ссылка на мероприятие' "
+                                "FROM data_from_html", data_base))
